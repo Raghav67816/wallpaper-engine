@@ -1,10 +1,33 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_video.h>
 #include <vector>
 #include <string.h>
+#include <X11/Xlib.h>
 
 using namespace std;
+
+struct WinDim{
+    int width;
+    int height;
+};
+
+WinDim get_window_dim(){
+    Display *display = XOpenDisplay(NULL);
+    if(!display){
+        cout << "failed to open display" << endl;
+    }
+    int screen = XDefaultScreen(display);
+    Window root = XRootWindow(display, screen);
+
+    XWindowAttributes root_attrs;
+    XGetWindowAttributes(display, root, &root_attrs);
+    XCloseDisplay(display);
+
+    WinDim dim = {root_attrs.width, root_attrs.height};
+    return dim;
+}
 
 vector<SDL_Texture*> load_textures(SDL_Renderer* renderer){
     vector<SDL_Texture*> textures;
@@ -25,13 +48,15 @@ vector<SDL_Texture*> load_textures(SDL_Renderer* renderer){
 
 int main(int argc, char** args){
     int c_frame = 0;
+    WinDim dim = get_window_dim();
 
     if(SDL_Init(SDL_INIT_EVERYTHING | IMG_Init(IMG_INIT_JPG)) != 0){
         cout << "failed to init SDL" << endl;
     }
 
+
     SDL_Window *window = SDL_CreateWindow(
-        "Wallpaper Engine", 0, 0, 800, 600, SDL_WINDOW_SHOWN
+        "Wallpaper Engine", 0, 0, dim.width, dim.height, SDL_WINDOW_SHOWN
     );
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         if(!renderer){
