@@ -1,78 +1,39 @@
-#include <X11/Xlib.h>
+#include <SDL2/SDL.h>
 #include <iostream>
-#include <sys/shm.h>
-#include <sys/ipc.h>
-#include <vector>
-#include <X11/extensions/XShm.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 using namespace std;
 
-int c_frame = 0;
-int frames = 30;
-
-
-vector<unsigned char*> load_frames(){
-    vector<unsigned char*> frames;
-    int w, h, channels;
-    for (int i=0; i<150; i++){
-        frames.assign(
-            i, stbi_load(to_string(i).c_str() + '.jpg', &w, &h, &channels, 3)
-        );
+int main(int argc, char** args){
+    if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
+        cout << "failed to init SDL" << endl;
     }
-    return frames;
-}
 
-int main()
-{
-    int w, h;
-    Display *display = XOpenDisplay(NULL);
-    int screen = DefaultScreen(display);
-
-    Window root = XDefaultRootWindow(display);
-    int win_width = DisplayWidth(display, screen);
-    int win_height = DisplayHeight(display, screen);
-
-    XSetWindowAttributes attrs;
-    attrs.override_redirect = true;
-    attrs.background_pixel = XBlackPixel(display, screen);
-
-    Window win = XCreateWindow(
-        display, root,
-        0, 0,
-        win_width, win_height,
-        0,
-        DefaultDepth(display, screen),
-        InputOnly,
-        DefaultVisual(display, screen),
-        CWOverrideRedirect,
-        &attrs
+    SDL_Window *window = SDL_CreateWindow(
+        "Wallpaper Engine", 0, 0, 800, 600, SDL_WINDOW_SHOWN
     );
+    SDL_Surface *surface = SDL_GetWindowSurface(window);
 
-    XShmSegmentInfo *shm_info;
-    XImage* img = XShmCreateImage(
-        display, 
-        DefaultVisual(display, screen),
-        24,
-        ZPixmap,
-        NULL,
-        shm_info,
-        w, h
-    );
+    SDL_UpdateWindowSurface(window);
 
-    vector<unsigned char*> frames = load_frames();
-    cout << "done loading" << endl;
+    if (!window){
+        cout << "failed to create a window." << endl;
+    }
 
-    while(1){
+    SDL_Event event;
+    bool running = true;
 
-    };
+    while(running){
+        while(SDL_PollEvent(&event)){
+            if(event.type == SDL_QUIT){
+                running = false;
+            }
+        }
 
-    XMapWindow(display, win);
-    XLowerWindow(display, win);
-    XFlush(display);
+        SDL_Delay(16);
+    }
 
-    XCloseDisplay(display);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
     return 0;
 }
