@@ -24,6 +24,8 @@ vector<SDL_Texture*> load_textures(SDL_Renderer* renderer){
 }
 
 int main(int argc, char** args){
+    int c_frame = 0;
+
     if(SDL_Init(SDL_INIT_EVERYTHING | IMG_Init(IMG_INIT_JPG)) != 0){
         cout << "failed to init SDL" << endl;
     }
@@ -31,10 +33,16 @@ int main(int argc, char** args){
     SDL_Window *window = SDL_CreateWindow(
         "Wallpaper Engine", 0, 0, 800, 600, SDL_WINDOW_SHOWN
     );
-    SDL_Surface *surface = SDL_GetWindowSurface(window);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if(!renderer){
+        cout << "failed to create renderer" << endl;
+        cout << SDL_GetError() << endl;
+    }
 
-    vector<SDL_Texture*> frames = load_textures(renderer);  
+
+    SDL_Surface *surface = SDL_GetWindowSurface(window);
+
+    vector<SDL_Texture*> frames = load_textures(renderer);
 
     SDL_UpdateWindowSurface(window);
 
@@ -52,7 +60,15 @@ int main(int argc, char** args){
             }
         }
 
-        SDL_Delay(16);
+        c_frame += 1;
+        if (c_frame >= 149){
+            c_frame = 0;
+        }
+        cout << c_frame << endl;
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, frames[c_frame], NULL, NULL);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(1000);
     }
 
     SDL_DestroyWindow(window);
