@@ -1,6 +1,9 @@
 #include <X11/Xlib.h>
 #include <stdio.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 using namespace std;
 
 int main()
@@ -22,7 +25,7 @@ int main()
         win_width, win_height,
         0,
         DefaultDepth(display, screen),
-        InputOutput,
+        InputOnly,
         DefaultVisual(display, screen),
         CWOverrideRedirect,
         &attrs
